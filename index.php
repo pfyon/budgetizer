@@ -141,7 +141,7 @@ if($cnx)
 			<legend>Filter Results</legend>
 			Start Date: <input type="text" name="date_start" id="date_start" value="' . $date_start . '"/>
 			End Date: <input type="text" name="date_end" id="date_end" value="' . $date_end . '"/><br />
-			Tags: <input type="text" name="filter_tags" value="" class="filter_tags" /><br />
+			Tags: <input type="text" name="filter_tags" value="" class="filter_tags" id="filter_tags" /><br />
 			<br />
 			<input type="submit" name="submit_tags" value="Perform Query" />
 			<input type="submit" name="show_all" value="Show All Transactions" id="tags_show_all" />
@@ -149,6 +149,20 @@ if($cnx)
 			
 		</fieldset>
 	</form>';
+
+	if(!empty($_POST['submit_search']) || !empty($_POST['submit_tags']))
+	{
+		//We only show this if they've done a search because they probably don't want to apply this to everything
+		echo '
+	<form name="bulk_tag" method="POST">
+		<fieldset>
+			<legend>Bulk Tag</legend>
+			Tag: <input type="text" name="bulk_tags" value="" class="filter_tags" id="input_bulk_tag" /><br />
+			<br />
+			<input type="submit" name="submit_bulk_tag" value="Tag These Transactions" id="submit_bulk_tag" />
+		</fieldset>
+	</form>';
+	}
 
 	$total_debit = 0;
 	$total_credit = 0;
