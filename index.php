@@ -30,24 +30,31 @@ if($cnx)
 	if(!empty($_POST['submit_upload']))
 	{
 		//Handle File uploads
-		if($_FILES['csv_file']['error'][0] == 0 && $_FILES['csv_file']['size'][0] < 100000)
+		foreach($_FILES['csv_file']['tmp_name'] as $index => $tmpfile)
 		{
-			//No error and approximately 100k filesize
-			$file = @fopen($_FILES['csv_file']['tmp_name'], 'r');
-			$parser = new Parser($_FILES['csv_file']['tmp_name'], $_POST['accounttype'], $_POST['label'], $cnx);
-			$parser->parseFile();
+			$file_error = $_FILES['csv_file']['error'][$index];
+			$file_size = $_FILES['csv_file']['size'][$index];
+			$file_orig_name = $_FILES['csv_file']['name'][$index];
+			$file_tmp_path = $_FILES['csv_file']['tmp_name'][$index];
 
-			if($parser->errorOccurred())
+			if($file_error == 0 && $file_size < 100000)
 			{
-				echo "At least one error occurred during processing: <br />" . implode('<br />', $parser->getErrors());
-			} else
-			{
-				echo "No error occurred";
+				//No error and approximately 100k filesize
+				echo "Parsing \"" . htmlentities($file_orig_name) . "<br />";
+
+				$parser = new Parser($file_tmp_path, $_POST['accounttype'], $_POST['label'], $cnx);
+				$parser->parseFile();
+
+				if($parser->errorOccurred())
+				{
+					echo "At least one error occurred during processing: <br />" . implode('<br />', $parser->getErrors()) . '<br />';
+				} else
+				{
+					echo "No error occurred<br />";
+				}
 			}
-		} else
-		{
-			echo "Error uploading File<br />";
 		}
+ 
 	}
 
 	//TODO: handle some way to show untagged traffic
@@ -93,7 +100,7 @@ if($cnx)
 		<form method="POST" name="file_upload" enctype="multipart/form-data">
 			<fieldset>
 				<legend>Upload a File</legend>
-				Select File: <input type="file" name="csv_file" /><br />
+				Select File: <input type="file" name="csv_file[]" multiple /><br />
 				Account Type: <select name="accounttype">
 					<option value="default">Choose Account Type</option>';
 		while(($row = pg_fetch_assoc($accounttypes)) !== false)
