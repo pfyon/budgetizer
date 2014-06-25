@@ -1,0 +1,43 @@
+form {
+	font-family: "Lucida Sans Unicode","Lucida Grande",Sans-Serif;
+	margin: 20px;
+	color: #003399;
+}
+table {
+	border-collapse: collapse;
+	font-family: "Lucida Sans Unicode","Lucida Grande",Sans-Serif;
+	font-size: 12px;
+	margin: 20px;
+	text-align: left;
+	width: 800px;
+}
+table th {
+	background: none repeat scroll 0 0 #B9C9FE;
+	border-bottom: 1px solid #FFFFFF;
+	border-top: 4px solid #AABCFE;
+	color: #003399;
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+}
+table td {
+	background: none repeat scroll 0 0 #E8EDFF;
+	border-bottom: 1px solid #FFFFFF;
+	border-top: 1px solid transparent;
+	color: #666699;
+	padding: 8px;
+}
+table tr:hover td {
+	background: none repeat scroll 0 0 #D0DAFD;
+	color: #333399;
+}
+div.tag
+{
+	background-color: #F3F1D9;
+	border: 1px solid #C5B849;
+	padding: 3px 4px 3px 4px;
+	margin: 2px 2px 2px 0;
+	font-size: 90%;
+	display: inline;
+	cursor: pointer;
+}
