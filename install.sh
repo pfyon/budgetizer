@@ -4,7 +4,7 @@ if [ $("whoami") != "root" ]; then
 	echo "This script must be run as root"
 	exit 1
 fi
-echo "This script expects to be run from the root directory of your svn checkout"
+echo "This script expects to be run from the root directory of your git checkout"
 echo ""
 
 SETUPPACKAGES=0
