@@ -130,6 +130,19 @@ class Transactions
 		return false;
 	}
 
+	public static function getByDescription($desc, $cnx)
+	{
+		if($cnx)
+		{
+			$result = pg_query($cnx, "SELECT t.*, l.label FROM transactions t LEFT JOIN tag_list i ON t.id = i.transaction_id LEFT JOIN tag_labels l ON i.tag = l.id WHERE t.description ILIKE '%" . pg_escape_string($desc) . "%'");
+			if($result)
+			{
+				return self::preProcessRows($result);
+			}
+		}
+		return false;
+	}
+
 	protected static function preProcessRows($result)
 	{
 		$transactions = array();
