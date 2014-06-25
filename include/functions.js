@@ -4,12 +4,12 @@ $(function()
 
 	$('input#date_start').datepicker();
 	$('input#date_end').datepicker();
-	$('input#query_reset').click(function(event)
+	$('input#tags_reset').click(function(event)
 	{
 		event.preventDefault();
 		$('input#date_start').datepicker('setDate', null);
 		$('input#date_end').datepicker('setDate', null);
-		$('input.description_contains').val('');
+		$('input#filter_tags').val('');
 	});
 
 	$('input#add_description_field').click(function()
@@ -31,36 +31,50 @@ $(function()
 			//It's a keypress, we need to check that it was the "enter" key aka number 13
 			if(event.which == 13)
 			{
-				addTag($(this));
+				$(this).addTag();
 			}
 		} else if(event.type == "autocompleteselect")
 		{
 			//We have an autocomplete event so we can just send the value right away
 			event.preventDefault();
 			$(this).val(ui.item.value);
-			addTag($(this));
+			$(this).addTag();
 		}
 	});
 
 	$(document).on("click", "div.tag", function(event, ui)
 	{
-		removeTag($(this));
+		$(this).removeTag();
 	});
 
 	$("input#tags_reset").click(function()
 	{
 		$("input#date_start, input#date_end").val();
 	});
+
+	$("input#submit_bulk_tag").click(function(event)
+	{
+		event.preventDefault();
+		var bulk_tags = $("input#input_bulk_tag").val();
+		if(confirm("Are you sure you want to tag ALL of these transactions with the following tags?\n\n" + bulk_tags))
+		{
+			$("input.transaction_addtag").val(bulk_tags);
+			$.each($("input.transaction_addtag"), function(index, element)
+			{
+				$(element).addTag();
+			});
+		}
+	});
 });
 
-function addTag(elem)
+$.fn.addTag = function()
 {
-	var parentRow = elem.closest('tr');
-	var tagname = elem.val().trim().toLowerCase();
+	var parentRow = this.closest('tr');
+	var tagname = this.val().trim().toLowerCase();
 	var rowid = parentRow.attr('id');
 
 	//Clear out the input, makes it feel more responsive to the user
-	elem.val("");
+	this.val("");
 
 	if(tagname != '')
 	{
@@ -94,13 +108,14 @@ function addTag(elem)
 			'json'
 		);
 	}
+	return this;
 }
 
-function removeTag(elem)
+$.fn.removeTag = function()
 {
-	var rowid = elem.closest('tr').attr('id');
-	var tag = elem.html().trim();
-	elem.remove();
+	var rowid = this.closest('tr').attr('id');
+	var tag = this.html().trim();
+	this.remove();
 
 	$.post("ajax/tags.php",
 		{
