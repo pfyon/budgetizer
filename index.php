@@ -88,6 +88,16 @@ if($cnx)
 	} else if(!empty($_POST['show_all']))
 	{
 		$transactions = Transactions::getAll($cnx);
+	} else if(!empty($_POST['submit_search']))
+	{
+		$search_str = trim($_POST['search_description']);
+		if($search_str != '')
+		{
+			$transactions = Transactions::getByDescription($search_str, $cnx);
+		} else
+		{
+			$transactions = Transactions::getAll($cnx);
+		}
 	} else
 	{
 		//Our default case, query the untagged stuff 
@@ -116,12 +126,22 @@ if($cnx)
 	}
 
 	echo '
+	<form method="POST" name="search_by_description">
+		<fieldset>
+			<legend>Search</legend>
+			Description: <input type="text" name="search_description" value="" class="search_description" /><br />
+			<br />
+			<input type="submit" name="submit_search" value="Search" />
+		</fieldset>
+	</form>';
+
+	echo '
 	<form method="POST" name="filter_by_tags">
 		<fieldset>
 			<legend>Filter Results</legend>
 			Start Date: <input type="text" name="date_start" id="date_start" value="' . $date_start . '"/>
 			End Date: <input type="text" name="date_end" id="date_end" value="' . $date_end . '"/><br />
-			Tags: <input type="text" name="filter_tags" value="" class="filter_tags" />
+			Tags: <input type="text" name="filter_tags" value="" class="filter_tags" /><br />
 			<br />
 			<input type="submit" name="submit_tags" value="Perform Query" />
 			<input type="submit" name="show_all" value="Show All Transactions" id="tags_show_all" />
