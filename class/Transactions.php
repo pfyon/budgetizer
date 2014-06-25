@@ -134,7 +134,15 @@ class Transactions
 	{
 		if($cnx)
 		{
-			$result = pg_query($cnx, "SELECT t.*, l.label FROM transactions t LEFT JOIN tag_list i ON t.id = i.transaction_id LEFT JOIN tag_labels l ON i.tag = l.id WHERE t.description ILIKE '%" . pg_escape_string($desc) . "%'");
+			//This takes a search for a string like "this is a test string", escapes each word, and implodes it into "this%is%a%test%string"
+			//This fixes an issue where some transactions could have words separated by multiple whitespace which wouldn't come up in a search normally
+			$fields = explode(" ", $desc);
+			foreach($fields as $index => $field)
+			{
+				$fields[$index] = pg_escape_string($field);
+			}
+
+			$result = pg_query($cnx, "SELECT t.*, l.label FROM transactions t LEFT JOIN tag_list i ON t.id = i.transaction_id LEFT JOIN tag_labels l ON i.tag = l.id WHERE t.description ILIKE '%" . implode("%", $fields) . "%'");
 			if($result)
 			{
 				return self::preProcessRows($result);
