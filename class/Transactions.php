@@ -83,6 +83,48 @@ class Transactions
 		
 	}
 
+	public static function getCreditsByDateRange($date_start, $date_end, $cnx)
+	{
+		$transactions = self::getByDateRange($date_start, $date_end, $cnx);
+
+		$credits = 0;		
+		if($transactions !== false)
+		{
+			foreach($transactions as $row)
+			{
+				if($row['amount'] > 0)
+				{
+					$credits += $row['amount'];
+				}
+			}
+
+			return $credits;
+		}
+
+		return 0;
+	}
+
+	public static function getDebitsByDateRange($date_start, $date_end, $cnx)
+	{
+		$transactions = self::getByDateRange($date_start, $date_end, $cnx);
+
+		$debits = 0;		
+		if($transactions !== false)
+		{
+			foreach($transactions as $row)
+			{
+				if($row['amount'] < 0)
+				{
+					$debits += $row['amount'];
+				}
+			}
+
+			return $debits;
+		}
+
+		return 0;
+	}
+
 	public static function getByDateRange($date_start, $date_end, $cnx)
 	{
 		if($cnx)
@@ -107,7 +149,6 @@ class Transactions
 				//This handles the case where both date_start and date_end are blank strings (failing gracefully and all)
 				$query .= ' WHERE ' . implode(' AND ', $where_parts);
 			}
-
 			$result = pg_query($cnx, $query);
 			if($result)
 			{
@@ -186,6 +227,50 @@ class Transactions
 		}
 
 		return 0;
+	}
+
+	public static function getTotalByTagsAndDateRange($tags = null, $date_start, $date_end, $cnx)
+	{
+		if($tags === null)
+		{
+			$transactions = self::getByDateRange($date_start, $date_end, $cnx);
+		} else
+		{
+			$transactions = self::getByTagsAndDateRange($tags, $date_start, $date_end, $cnx);
+		}
+
+		$credit_debit = 0;
+		foreach($transactions as $row)
+		{
+			$credit_debit += $row['amount'];	
+		}
+
+		return $credit_debit;
+	}
+
+	public static function getMonthlyAverageOverYearByTags($tags, $cnx)
+	{
+		$date_start = (new DateTime('first day of last month last year'))->format('m/d/Y');
+		$date_end = (new DateTime('last day of last month'))->format('m/d/Y');
+
+		if($tags === null)
+		{
+			$transactions = self::getByDateRange($date_start, $date_end, $cnx);
+		} else
+		{
+			$transactions = self::getByTagsAndDateRange($tags, $date_start, $date_end, $cnx);
+		}
+
+		$credit_debit = 0;
+
+		foreach($transactions as $row)
+		{
+			$credit_debit += $row['amount'];
+		}
+
+		$average = $credit_debit / 12;
+
+		return $average;
 	}
 }
 ?>
