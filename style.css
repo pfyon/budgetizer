@@ -1,4 +1,4 @@
-form {
+form, div.navigation_link {
 	font-family: "Lucida Sans Unicode","Lucida Grande",Sans-Serif;
 	margin: 20px;
 	color: #003399;
@@ -40,4 +40,20 @@ div.tag
 	font-size: 90%;
 	display: inline;
 	cursor: pointer;
+}
+fieldset.form_menu
+{
+	display:block;
+	float:left;
+	height:100%;
+}
+div#form_menu_div
+{
+	height:125px;
+	clear:both;
+	padding-bottom:10px;
+}
+div.navigation_link
+{
+	float:left;
 }
