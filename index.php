@@ -9,21 +9,19 @@ $cnx = pg_connect("host='" . $host . "' dbname='" . $dbname . "' user='" . $user
 
 echo '
 <html>
-<head>
-	<link rel="stylesheet" type="text/css" href="style.css" />
-	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/redmond/jquery-ui.css" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js" type="text/javascript"></script>';
+<head>';
+
+require_once("include/head.php");
 
 //We'll create the availableTags javascript array here
 echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll($cnx)) . ';</script>
 	<script src="include/functions.js" type="text/javascript"></script>
 </head>';
 
+require_once("include/menu.php");
+
 if($cnx)
 {
-	$accounttypes = pg_query($cnx, "SELECT * FROM accounttype ORDER BY description, id");
-
 	$date_start = '';
 	$date_end = '';
 
@@ -57,7 +55,6 @@ if($cnx)
  
 	}
 
-	//TODO: handle some way to show untagged traffic
 	if(!empty($_POST['submit_tags']))
 	{
 		//Handle a query by tags
@@ -104,40 +101,10 @@ if($cnx)
 		$transactions = Transactions::getUntagged($cnx);
 	}
 
-	if($accounttypes !== false)
-	{
-		echo '
-		<form method="POST" name="file_upload" enctype="multipart/form-data">
-			<fieldset>
-				<legend>Upload a File</legend>
-				Select File: <input type="file" name="csv_file[]" multiple /><br />
-				Account Type: <select name="accounttype">
-					<option value="default">Choose Account Type</option>';
-		while(($row = pg_fetch_assoc($accounttypes)) !== false)
-		{
-			echo '		<option value="' . $row['code'] . '">' . $row['description'] . '</option>';
-		}
-
-		echo '		</select>
-				Account Label: <input type="text" name="label" />
-				<input type="submit" name="submit_upload" value="Upload File for Processing">
-			</fieldset>
-		</form>';
-	}
-
 	echo '
-	<form method="POST" name="search_by_description">
-		<fieldset>
-			<legend>Search</legend>
-			Description: <input type="text" name="search_description" value="" class="search_description" /><br />
-			<br />
-			<input type="submit" name="submit_search" value="Search" />
-		</fieldset>
-	</form>';
-
-	echo '
+	<div id="form_menu_div">
 	<form method="POST" name="filter_by_tags">
-		<fieldset>
+		<fieldset class="form_menu">
 			<legend>Filter Results</legend>
 			Start Date: <input type="text" name="date_start" id="date_start" value="' . $date_start . '"/>
 			End Date: <input type="text" name="date_end" id="date_end" value="' . $date_end . '"/><br />
@@ -145,10 +112,20 @@ if($cnx)
 			<br />
 			<input type="submit" name="submit_tags" value="Perform Query" />
 			<input type="submit" name="show_all" value="Show All Transactions" id="tags_show_all" />
+			<input type="submit" name="show_untagged" value="Show Untagged Transactions" id="tags_show_untagged" />
 			<input type="reset" value="Reset Form" id="tags_reset" />
 			
 		</fieldset>
-	</form>';
+	</form>
+	<form method="POST" name="search_by_description">
+		<fieldset class="form_menu">
+			<legend>Search</legend>
+			Description: <input type="text" name="search_description" value="" class="search_description" /><br />
+			<br />
+			<input type="submit" name="submit_search" value="Search" />
+		</fieldset>
+	</form>
+	</div>';
 
 	if(!empty($_POST['submit_search']) || !empty($_POST['submit_tags']))
 	{
@@ -233,5 +210,5 @@ if($cnx)
 
 	echo '</table>';
 }
+echo '</body></html>';
 ?>
-</html>
