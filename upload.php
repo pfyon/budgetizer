@@ -2,7 +2,8 @@
 session_start();
 require_once("config.php");
 
-$cnx = pg_connect("host='" . $host . "' dbname='" . $dbname . "' user='" . $user . "' password='" . $password . "'");
+//This include basically checks that they're logged in and redirects them to login.php if they're not
+require_once("include/auth.php");
 
 echo '
 <html>
@@ -13,14 +14,14 @@ require_once("include/head.php");
 echo '</head><body>';
 require_once("include/menu.php");
 
-if($cnx)
+if($db_cnx)
 {
-	$accounttypes = pg_query($cnx, "SELECT * FROM accounttype ORDER BY description, id");
+	$accounttypes = pg_query($db_cnx, "SELECT * FROM accounttype ORDER BY description, id");
 	
 	if($accounttypes !== false)
 	{
 		echo '
-		<div id="form_menu_div">
+		<div id="form_menu_div" class="container">
 		<form method="POST" name="file_upload" enctype="multipart/form-data" action="index.php">
 			<fieldset>
 				<legend>Upload a File</legend>
