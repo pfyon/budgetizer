@@ -1,11 +1,13 @@
 <?php
 session_start();
 require_once("config.php");
+
+//This include basically checks that they're logged in and redirects them to login.php if they're not
+require_once("include/auth.php");
+
 require_once("class/Parser.php");
 require_once("class/Transactions.php");
 require_once("class/Tags.php");
-
-$cnx = pg_connect("host='" . $host . "' dbname='" . $dbname . "' user='" . $user . "' password='" . $password . "'");
 
 echo '
 <html>
@@ -14,13 +16,13 @@ echo '
 require_once("include/head.php");
 
 //We'll create the availableTags javascript array here
-echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll($cnx)) . ';</script>
+echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll($db_cnx)) . ';</script>
 	<script src="include/functions.js" type="text/javascript"></script>
 </head>';
 
 require_once("include/menu.php");
 
-if($cnx)
+if($db_cnx)
 {
 	$date_start = '';
 	$date_end = '';
@@ -40,7 +42,7 @@ if($cnx)
 				//No error and approximately 100k filesize
 				echo "Parsing \"" . htmlentities($file_orig_name) . "<br />";
 
-				$parser = new Parser($file_tmp_path, $_POST['accounttype'], $_POST['label'], $cnx);
+				$parser = new Parser($file_tmp_path, $_POST['accounttype'], $_POST['label'], $db_cnx);
 				$parser->parseFile();
 
 				if($parser->errorOccurred())
@@ -67,43 +69,43 @@ if($cnx)
 			
 			if($date_start != '' || $date_end != '')
 			{
-				$transactions = Transactions::getByTagsAndDateRange(explode(" ", $tag_str), $date_start, $date_end, $cnx);
+				$transactions = Transactions::getByTagsAndDateRange(explode(" ", $tag_str), $date_start, $date_end, $db_cnx);
 			} else
 			{
-				$transactions = Transactions::getByTags(explode(" ", $tag_str), $cnx);
+				$transactions = Transactions::getByTags(explode(" ", $tag_str), $db_cnx);
 			}
 		} else
 		{
 			if($date_start != '' || $date_end != '')
 			{
-				$transactions = Transactions::getByDateRange($date_start, $date_end, $cnx);
+				$transactions = Transactions::getByDateRange($date_start, $date_end, $db_cnx);
 			} else
 			{
-				$transactions = Transactions::getAll($cnx);
+				$transactions = Transactions::getAll($db_cnx);
 			}
 		}
 	} else if(!empty($_POST['show_all']))
 	{
-		$transactions = Transactions::getAll($cnx);
+		$transactions = Transactions::getAll($db_cnx);
 	} else if(!empty($_POST['submit_search']))
 	{
 		$search_str = trim($_POST['search_description']);
 		if($search_str != '')
 		{
-			$transactions = Transactions::getByDescription($search_str, $cnx);
+			$transactions = Transactions::getByDescription($search_str, $db_cnx);
 		} else
 		{
-			$transactions = Transactions::getAll($cnx);
+			$transactions = Transactions::getAll($db_cnx);
 		}
 	} else
 	{
 		//Our default case, query the untagged stuff 
-		$transactions = Transactions::getUntagged($cnx);
+		$transactions = Transactions::getUntagged($db_cnx);
 	}
 
 	echo '
-	<div id="form_menu_div">
-	<form method="POST" name="filter_by_tags">
+<div id="form_menu_div" class="container">
+	<form method="POST" name="filter_by_tags" class="column_66">
 		<fieldset class="form_menu">
 			<legend>Filter Results</legend>
 			Start Date: <input type="text" name="date_start" id="date_start" value="' . $date_start . '"/>
@@ -117,7 +119,7 @@ if($cnx)
 			
 		</fieldset>
 	</form>
-	<form method="POST" name="search_by_description">
+	<form method="POST" name="search_by_description" class="column_34">
 		<fieldset class="form_menu">
 			<legend>Search</legend>
 			Description: <input type="text" name="search_description" value="" class="search_description" /><br />
@@ -125,7 +127,7 @@ if($cnx)
 			<input type="submit" name="submit_search" value="Search" />
 		</fieldset>
 	</form>
-	</div>';
+</div>';
 
 	if(!empty($_POST['submit_search']) || !empty($_POST['submit_tags']))
 	{
@@ -144,7 +146,8 @@ if($cnx)
 	$total_debit = 0;
 	$total_credit = 0;
 
-	echo '<table>
+	echo '<div class="container">
+		<table class="column_100">
 		<tr>
 			<th>Date</th>
 			<th>Amount</th>
@@ -208,7 +211,8 @@ if($cnx)
 		<td></td>
 	</tr>';
 
-	echo '</table>';
+	echo '</table>
+</div>';
 }
 echo '</body></html>';
 ?>
