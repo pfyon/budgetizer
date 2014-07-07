@@ -89,7 +89,7 @@ $.fn.addTag = function()
 				var taghtml = '';
 				$.each(data, function(index, value)
 				{
-					taghtml += '<div class="tag">' + value + '</div>';
+					taghtml += '<div class="tag">' + value + ' &#10006;</div>';
 				});
 	
 				$('td.transaction_taglist', parentRow).html(taghtml);

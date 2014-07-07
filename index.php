@@ -170,7 +170,7 @@ if($db_cnx)
 		{
 			if($tag != '')
 			{
-				echo '<div class="tag">' . $tag . '</div>';
+				echo '<div class="tag">' . $tag . ' &#10006;</div>';
 			}
 		}
  		echo 	'</td>
