@@ -18,7 +18,7 @@ $(function()
 		index++;
 	});
 
-	$("input.transaction_addtag, input.filter_tags").autocomplete(
+	$("input.tag_autocomplete").autocomplete(
 	{
 		source: availableTags,
 		minLength: 1
