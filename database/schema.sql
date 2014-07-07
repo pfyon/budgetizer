@@ -71,3 +71,33 @@ create index tag_list_tag_index on tag_list (tag);
 create unique index tag_list_tag_transaction_id_index on tag_list (tag, transaction_id);
 
 INSERT INTO accounttype (code, description) VALUES ('bmo', 'Bank of Montreal Debit'), ('td', 'TD Canada Debit'), ('bmo_mastercard', 'Bank of Montreal Mastercard');
+
+create table users (
+	id integer not null,
+	email varchar(255) not null,
+	password varchar(100) not null,
+	last_login integer
+);
+
+create sequence users_id_seq;
+
+alter table users ALTER id SET DEFAULT nextval('users_id_seq');
+
+create index users_email_index on users (email);
+create index users_id_index on users (id);
+
+create unique index users_email_unique_index on users (email);
+
+create table tag_stats (
+	id integer not null,
+	user_id integer not null,
+	tag_label_id integer not null
+);
+
+create sequence tag_stats_id_seq;
+
+alter table tag_stats ALTER id SET DEFAULT nextval('tag_stats_id_seq');
+
+create index tag_stats_user_id_index on tag_stats (user_id);
+
+create unique index tag_stats_user_id_tag_label_id_index on tag_stats (user_id, tag_label_id);
