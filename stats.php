@@ -6,11 +6,14 @@ require_once("config.php");
 require_once("include/auth.php");
 
 require_once("class/Transactions.php");
+require_once("class/Tags.php");
 require_once("class/TagStats.php");
 
 echo '<html><head>';
 require_once("include/head.php");
-echo '</head><body>';
+echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll($db_cnx)) . ';</script>
+	<script src="include/functions.js" type="text/javascript"></script>
+</head><body>';
 
 require_once("include/menu.php");
 
@@ -31,7 +34,7 @@ echo '
 	<form name="statistics_addtag" method="POST">
 		<fieldset>
 			<legend>Add Tag to Statistics Tracking</legend>
-			<div class="form_div">Tag: <input type="text" name="statistics_tag" value="" /></div>
+			<div class="form_div">Tag: <input type="text" name="statistics_tag" class="tag_autocomplete" value="" /></div>
 			<div class="form_div"><input type="submit" name="statistics_submit" value="Add Tag" /></div>
 		</fieldset>
 	</form>
