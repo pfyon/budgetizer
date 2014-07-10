@@ -16,7 +16,6 @@ ALTER SEQUENCE accounttype_id_seq OWNED BY accounttype.id;
 
 CREATE TABLE transactions (
     id integer NOT NULL,
-    card_num character varying(20),
     date integer NOT NULL,
     amount integer NOT NULL,
     description character varying(160) DEFAULT ''::character varying,
