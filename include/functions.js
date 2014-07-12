@@ -114,7 +114,9 @@ $.fn.addTag = function()
 $.fn.removeTag = function()
 {
 	var rowid = this.closest('tr').attr('id');
-	var tag = this.html().trim();
+
+	//We're stripping off the X from the end of the tag
+	var tag = this.html().slice(0, -2).trim();
 	this.remove();
 
 	$.post("ajax/tags.php",
