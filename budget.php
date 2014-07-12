@@ -11,7 +11,7 @@ require_once("class/TagStats.php");
 
 echo '<html><head>';
 require_once("include/head.php");
-echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll($db_cnx)) . ';</script>
+echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll(Auth::currentUserId(), $db_cnx)) . ';</script>
 	<script src="include/functions.js" type="text/javascript"></script>
 </head><body>';
 
@@ -22,18 +22,25 @@ if(isset($_POST['statistics_submit']))
 	$tag = trim($_POST['statistics_tag']);
 	if($tag != '')
 	{
-		TagStats::addTag($_SESSION['auth']['user_id'], $tag, $db_cnx);
+		TagStats::addTag(Auth::currentUserId(), $tag, $db_cnx);
+	}
+} else if(isset($_POST['budget_submit']))
+{
+	foreach($_POST['budget'] as $label => $amount)
+	{
+		$amount = trim($amount) * 100;
+		TagStats::updateBudgetByLabel(Auth::currentUserId(), trim($label), $amount, $db_cnx);
 	}
 }
 
 
-$tags = TagStats::getTagsByUserId($_SESSION['auth']['user_id'], $db_cnx);
+$tags = TagStats::getTagsByUserId(Auth::currentUserId(), $db_cnx);
 
 echo '
 <div class="container">
 	<form name="statistics_addtag" method="POST">
 		<fieldset>
-			<legend>Add Tag to Statistics Tracking</legend>
+			<legend>Add Tag to Budget Tracking</legend>
 			<div class="form_div">Tag: <input type="text" name="statistics_tag" class="tag_autocomplete" value="" /></div>
 			<div class="form_div"><input type="submit" name="statistics_submit" value="Add Tag" /></div>
 		</fieldset>
@@ -41,27 +48,67 @@ echo '
 </div>';
 
 
-$first_of_month = (new DateTime("first day of last month"))->format('m/d/Y');
-$last_of_month = (new DateTime("last day of last month"))->format('m/d/Y');
+$first_of_last_month = (new DateTime("first day of last month"))->format('m/d/Y');
+$last_of_last_month = (new DateTime("last day of last month"))->format('m/d/Y');
 
-echo '<div class="container"><table class="column_100">
+$first_of_this_month = (new DateTime("first day of this month"))->format('m/d/Y');
+$last_of_this_month = (new DateTime("last day of this month"))->format('m/d/Y');
+
+echo '<div class="container"><form method="POST"><table class="column_100">
 	<tr>
 		<th></th>
-		<th>Total Last Month</th>
-		<th>Monthly Average</th>
+		<th>Monthly Budget</th>
+		<th>This Month</th>
+		<th>Last Month</th>
+		<th>12 Month Average</th>
 </tr>';
+
+$total_this_month = 0;
+$total_last_month = 0;
+$total_last_year = 0;
+$total_budget = 0;
+
 foreach($tags as $tag)
 {
-	$total_last_month = Transactions::getTotalByTagsAndDateRange(array($tag), $first_of_month, $last_of_month, $db_cnx) / 100;
-	$average_last_year = Transactions::getMonthlyAverageOverYearByTags(array($tag), $db_cnx) / 100;
-	echo '<tr>
-		<td>' . $tag . '</td>
-		<td>' . sprintf('%1.2f', $total_last_month) . '</td>
-		<td>' . sprintf('%1.2f', $average_last_year) . '</td>
-	</tr>';
-}
+	$last_month = Transactions::getTotalByTagsAndDateRange(array($tag), $first_of_last_month, $last_of_last_month, $db_cnx) / 100;
+	$this_month = Transactions::getTotalByTagsAndDateRange(array($tag), $first_of_this_month, $last_of_this_month, $db_cnx) / 100;
+	$last_year = Transactions::getMonthlyAverageOverYearByTags(array($tag), $db_cnx) / 100;
 
-echo '</table></div>';
+	$budget = TagStats::getBudgetByLabel(Auth::currentUserId(), $tag, $db_cnx) / 100;
+
+	if($budget == NULL)
+	{
+		$budget = 0;
+	}
+
+	if($this_month > $budget)
+	{
+		echo '<tr class="red">';
+	} else
+	{
+		echo '<tr>';
+	}
+	echo '<td>' . $tag . '</td>
+		<td><input type="text" name="budget[' . $tag . ']" value="' . number_format($budget, 2, ".", "") . '" /></td>
+		<td>' . number_format($this_month, 2, '.', '') . '</td>
+		<td>' . number_format($last_month, 2, '.', '') . '</td>
+		<td>' . number_format($last_year, 2, '.', '') . '</td>
+	</tr>';
+
+	$total_budget += $budget;
+	$total_this_month += $this_month;
+	$total_last_month += $last_month;
+	$total_last_year += $last_year;
+}
+echo '<tr>
+	<td>Total:</td>
+	<td>' . number_format($total_budget, 2, '.', '') . '</td>
+	<td>' . number_format($total_this_month, 2, '.', '') . '</td>
+	<td>' . number_format($total_last_month, 2, '.', '') . '</td>
+	<td>' . number_format($total_last_year, 2, '.', '') . '</td>
+	</tr>';
+echo '</table>';
+echo '<input type="submit" name="budget_submit" value="Save Budget" /></form></div>';
 
 echo '</body></html>';
 ?>
