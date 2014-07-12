@@ -4,6 +4,7 @@
 //require_once("../config.php");
 class Parser
 {
+	protected $_owner = null;
 	protected $_filename = null;
 	protected $_type = null;
 	protected $_label = null;
@@ -12,8 +13,9 @@ class Parser
 	protected $_errors = array();
 	protected $_error = false;
 
-	public function __construct($filename, $type, $label, $cnx = null)
+	public function __construct($owner, $filename, $type, $label, $cnx = null)
 	{
+		$this->_owner = $owner;
 		$this->_filename = $filename;
 		$this->_type = $type;
 		$this->_label = $label;
@@ -30,6 +32,11 @@ class Parser
 	public function getErrors()
 	{
 		return $this->_errors;
+	}
+
+	public function getOwner()
+	{
+		return $this->_owner;
 	}
 
 	public function errorOccurred()
@@ -97,7 +104,6 @@ class Parser
 	{
 		if(count($line_arr) == 5 && preg_match("/^'[0-9]+'$/", $line_arr[0]))
 		{
-			$card_num = trim($line_arr[0], "',\"");
 			$trantype = trim($line_arr[1], " []");
 			$date = trim($line_arr[2]);
 	
@@ -113,8 +119,7 @@ class Parser
 	
 			//Found a valid line
 			//TODO: move this into a static Transactions function
-			$result = pg_query($this->_cnx, "INSERT INTO transactions (card_num, date, amount, description, hash, trantype, account, source) values('" 
-				. pg_escape_string($card_num) . "',"
+			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source) values(" 
 				. $timestamp . ","
 				. pg_escape_string($amount) . ",'"
 				. pg_escape_string($desc) . "','"
@@ -145,7 +150,6 @@ class Parser
 		if(count($line_arr) == 6 && preg_match("/^'[0-9]+'$/", $line_arr[1]))
 		{
 			$line_item_number = trim($line_arr[0]);
-			$card_num = trim($line_arr[1], "',\"");
 			$trans_date = trim($line_arr[2]);
 			$posting_date = trim($line_arr[3]); //We'll only use trans_date for now
 	
@@ -167,8 +171,7 @@ class Parser
 			//Convert a date in the form of YYYYMMDD to unix timestamp
 			$timestamp = mktime(0,0,0, substr($trans_date, 4, 2), substr($trans_date, 6, 2), substr($trans_date, 0, 4));
 	
-			$result = pg_query($this->_cnx, "INSERT INTO transactions (card_num, date, amount, description, hash, trantype, account, source) values('" 
-				. pg_escape_string($card_num) . "',"
+			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source) values(" 
 				. $timestamp . ","
 				. pg_escape_string($amount) . ",'"
 				. pg_escape_string($desc) . "','"
@@ -220,13 +223,13 @@ class Parser
 	
 			$timestamp = mktime(0,0,0, substr($date, 0, 2), substr($date, 3, 2), substr($date, 6, 4));
 	
-			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source) values(" 
+			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source, owner) values(" 
 				. $timestamp . ","
 				. pg_escape_string($amount) . ",'"
 				. pg_escape_string($desc) . "','"
 				. $linehash . "','"
 				. $trantype . "','"
-				. pg_escape_string($this->_label) . "','td')"
+				. pg_escape_string($this->_label) . "','td'," . $this->getOwner() . ")"
 			);
 	
 			if($result)
