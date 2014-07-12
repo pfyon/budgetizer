@@ -16,7 +16,7 @@ echo '
 require_once("include/head.php");
 
 //We'll create the availableTags javascript array here
-echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll($db_cnx)) . ';</script>
+echo 	'<script type="text/javascript">var availableTags = ' . json_encode(Tags::getAll(Auth::currentUserId(), $db_cnx)) . ';</script>
 	<script src="include/functions.js" type="text/javascript"></script>
 </head>';
 
@@ -42,7 +42,7 @@ if($db_cnx)
 				//No error and approximately 100k filesize
 				echo "Parsing \"" . htmlentities($file_orig_name) . "<br />";
 
-				$parser = new Parser($file_tmp_path, $_POST['accounttype'], $_POST['label'], $db_cnx);
+				$parser = new Parser(Auth::currentUserId(), $file_tmp_path, $_POST['accounttype'], $_POST['label'], $db_cnx);
 				$parser->parseFile();
 
 				if($parser->errorOccurred())
@@ -161,7 +161,7 @@ if($db_cnx)
 	{
 		echo '<tr id="' . $row['id'] . '">
 			<td class="transaction_date">' . date('Y-m-d', $row['date']) . '</td>
-			<td class="transaction_amt">' . sprintf('%1.2f', $row['amount'] / 100) . '</td>
+			<td class="transaction_amt">' . number_format($row['amount'] / 100, 2, '.', '') . '</td>
 			<td class="transaction_desc">' . $row['description'] . '</td>
 			<td class="transaction_acct">' . $row['account'] . '</td>
 			<td class="transaction_taglist">';
@@ -188,7 +188,7 @@ if($db_cnx)
 
 	echo '<tr>
 		<td>TOTAL DEBITS:</td>
-		<td>' . sprintf('%1.2f', $total_debit / 100) . '</td>
+		<td>' . number_format($total_debit / 100, 2, '.', '') . '</td>
 		<td></td>
 		<td></td>
 		<td></td>
@@ -196,7 +196,7 @@ if($db_cnx)
 	</tr>
 	<tr>
 		<td>TOTAL CREDITS:</td>
-		<td>' . sprintf('%1.2f', $total_credit / 100) . '</td>
+		<td>' . number_format($total_credit / 100, 2, '.', '') . '</td>
 		<td></td>
 		<td></td>
 		<td></td>
@@ -204,7 +204,7 @@ if($db_cnx)
 	</tr>
 	<tr>
 		<td>NET TOTAL:</td>
-		<td>' . sprintf('%1.2f', ($total_debit + $total_credit) / 100) . '</td>
+		<td>' . number_format(($total_debit + $total_credit) / 100, 2, '.', '') . '</td>
 		<td></td>
 		<td></td>
 		<td></td>
