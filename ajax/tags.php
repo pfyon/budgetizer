@@ -8,6 +8,8 @@ if(!Auth::isAuthenticated())
 }
 
 require_once("../class/Transactions.php");
+require_once("../class/TagList.php");
+require_once("../class/Tags.php");
 
 $tags = array();
 if(empty($_POST))
@@ -43,28 +45,17 @@ if(empty($_POST))
 
 				foreach($tag_line as $tagname)
 				{
-					$result = pg_query($db_cnx, "SELECT id FROM tag_labels WHERE label = '" . pg_escape_string($tagname) . "'");
-					if(pg_num_rows($result) < 1)
+
+					$tagid = Tags::getIdByLabel(Auth::currentUserId(), $tagname, $db_cnx);
+					if($tagid === false)
 					{
 						//Gotta insert the tag so we get an ID first
-						//TODO: using 1 as the owner for now
-						$result = pg_query($db_cnx, "INSERT INTO tag_labels (label, owner) VALUES ('" . pg_escape_string($tagname) . "', " . $_SESSION['auth']['user_id'] . ") RETURNING id");
-						if(pg_num_rows($result) == 1)
-						{
-							$row = pg_fetch_assoc($result, 0);
-							$tagid = $row['id'];
-						}
-					} else
-					{
-						//Get first row
-						$row = pg_fetch_assoc($result, 0);
-		
-						$tagid = $row['id'];
+						$tagid = Tags::addLabel(Auth::currentUserId(), $tagname, $db_cnx);
 					}
 		
-					if($tagid !== null)
+					if($tagid !== false)
 					{
-						pg_query($db_cnx, "INSERT INTO tag_list (tag, transaction_id) values (" . $tagid . ", " . pg_escape_string($transaction_id) . ")");
+						TagList::addTag($tagid, $transaction_id, $db_cnx);
 					}
 				}
 			}
@@ -83,18 +74,12 @@ if(empty($_POST))
 			Transactions::removeTag($tag, $transaction_id, $db_cnx);
 
 			//Check to see if anything has this tag on it anymore
-			$result = pg_query($db_cnx, "SELECT COUNT(i.id) FROM tag_list i JOIN tag_labels l ON i.tag = l.id WHERE l.label = '" . pg_escape_string($tag) . "'");
-			if($result)
+			if(TagList::getNumTransactionsByTag(Auth::currentUserId(), $tag, $db_cnx) === '0' && TagStats::getNumBudgetsByTag(Auth::currentUserId(), $tag, $db_cnx) === '0')
 			{
-				$row = pg_fetch_assoc($result, 0);
-				if($row['count'] == '0')
-				{
-					//Nothing has this tag on it anymore, we can remove it from the tag list
-					pg_query($db_cnx, "DELETE FROM tag_labels WHERE label = '" . pg_escape_string($tag) . "'");
-
-					//We'll return the deleted tag in case the client wants to remove it from its list (not implemented)
-					$tags = array($tag);
-				}
+				//Nothing has this tag on it anymore, we can remove it from the tag list
+				Tags::removeLabel(Auth::currentUserId(), $tag, $db_cnx);
+				//We'll return the deleted tag in case the client wants to remove it from its list (not implemented)
+				$tags = array($tag);
 			}
 			break;
 		default:
