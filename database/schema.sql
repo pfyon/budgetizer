@@ -90,7 +90,8 @@ create unique index users_email_unique_index on users (email);
 create table tag_stats (
 	id integer not null,
 	user_id integer not null,
-	tag_label_id integer not null
+	tag_label_id integer not null,
+	budget integer
 );
 
 create sequence tag_stats_id_seq;
