@@ -119,13 +119,13 @@ class Parser
 	
 			//Found a valid line
 			//TODO: move this into a static Transactions function
-			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source) values(" 
+			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source, owner) values(" 
 				. $timestamp . ","
 				. pg_escape_string($amount) . ",'"
 				. pg_escape_string($desc) . "','"
 				. $linehash . "','"
 				. pg_escape_string($trantype) . "','"
-				. pg_escape_string($this->_label) . "','bmo')"
+				. pg_escape_string($this->_label) . "','bmo'," . $this->getOwner() . ")"
 			);
 	
 			if($result)
@@ -171,13 +171,13 @@ class Parser
 			//Convert a date in the form of YYYYMMDD to unix timestamp
 			$timestamp = mktime(0,0,0, substr($trans_date, 4, 2), substr($trans_date, 6, 2), substr($trans_date, 0, 4));
 	
-			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source) values(" 
+			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source, owner) values(" 
 				. $timestamp . ","
 				. pg_escape_string($amount) . ",'"
 				. pg_escape_string($desc) . "','"
 				. $linehash . "','"
 				. $trantype . "','"
-				. pg_escape_string($this->_label) . "','bmo_mastercard')"
+				. pg_escape_string($this->_label) . "','bmo_mastercard'," . $this->getOwner() . ")"
 			);
 	
 			if($result)
@@ -223,6 +223,13 @@ class Parser
 	
 			$timestamp = mktime(0,0,0, substr($date, 0, 2), substr($date, 3, 2), substr($date, 6, 4));
 	
+			error_log("INSERT INTO transactions (date, amount, description, hash, trantype, account, source, owner) values(" 
+				. $timestamp . ","
+				. pg_escape_string($amount) . ",'"
+				. pg_escape_string($desc) . "','"
+				. $linehash . "','"
+				. $trantype . "','"
+				. pg_escape_string($this->_label) . "','td'," . $this->getOwner() . ")");
 			$result = pg_query($this->_cnx, "INSERT INTO transactions (date, amount, description, hash, trantype, account, source, owner) values(" 
 				. $timestamp . ","
 				. pg_escape_string($amount) . ",'"
