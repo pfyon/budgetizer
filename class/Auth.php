@@ -1,5 +1,5 @@
 <?php
-session_start();
+@session_start();
 
 class Auth
 {
@@ -33,7 +33,7 @@ class Auth
 
 	public static function isAuthenticated()
 	{
-		if($_SESSION['auth']['logged_in'])
+		if(isset($_SESSION['auth']) && $_SESSION['auth']['logged_in'])
 		{
 			return true;
 		}
@@ -68,6 +68,11 @@ class Auth
 			return pg_fetch_assoc($result, 0);
 		}
 		return false;
+	}
+
+	public static function currentUserId()
+	{
+		return $_SESSION['auth']['user_id'];
 	}
 }
 ?>
