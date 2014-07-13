@@ -1,5 +1,5 @@
 <?php
-require_once("../class/Tags.php");
+require_once("Tags.php");
 
 class TagStats
 {
