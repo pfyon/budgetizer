@@ -1,5 +1,5 @@
 <?php
-session_start();
+@session_start();
 require_once("../config.php");
 require_once("../class/Auth.php");
 if(!Auth::isAuthenticated())
@@ -9,6 +9,7 @@ if(!Auth::isAuthenticated())
 
 require_once("../class/Transactions.php");
 require_once("../class/TagList.php");
+require_once("../class/TagStats.php");
 require_once("../class/Tags.php");
 
 $tags = array();
