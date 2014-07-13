@@ -17,8 +17,7 @@ if(empty($_POST))
 {
 	//TODO: optional transaction ID to retrieve just the tags
 	//This is a GET request, we're just replying with all the unique tags
-	//TODO: in the future, restrict tags by the 'owner' column
-	$result = pg_query($db_cnx, "SELECT label FROM tag_labels ORDER BY label");
+	$result = pg_query($db_cnx, "SELECT label FROM tag_labels WHERE owner = " . Auth::currentUserId() . " ORDER BY label");
 
 	while(($row = pg_fetch_assoc($result)) !== false)
 	{
