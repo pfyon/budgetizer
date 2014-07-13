@@ -1,5 +1,5 @@
 <?php
-session_start();
+@session_start();
 require_once("config.php");
 
 //This include basically checks that they're logged in and redirects them to login.php if they're not
