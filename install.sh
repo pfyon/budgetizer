@@ -249,6 +249,7 @@ if [ "$RESULT" == "y" ]; then
 	echo "Enabling the budgetizer host"
 	echo ""
 	a2dissite default
+	a2enmod rewrite
 	a2ensite budgetizer
 	/etc/init.d/apache2 restart
 
