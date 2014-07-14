@@ -136,7 +136,7 @@ if($db_cnx)
 	<form name="bulk_tag" method="POST">
 		<fieldset>
 			<legend>Bulk Tag</legend>
-			Tag: <input type="text" name="bulk_tags" value="" class="filter_tags" id="input_bulk_tag" /><br />
+			Tag: <input type="text" name="bulk_tags" value="" class="filter_tags tag_autocomplete" id="input_bulk_tag" /><br />
 			<br />
 			<input type="submit" name="submit_bulk_tag" value="Tag These Transactions" id="submit_bulk_tag" />
 		</fieldset>
