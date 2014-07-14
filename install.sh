@@ -114,11 +114,14 @@ if [ "$RESULT" == "y" ]; then
 		echo ""
 		a2enmod ssl php5 rewrite
 	
-		echo "Creating SSL certificate"
-		echo ""
-		mkdir /etc/apache2/certs
-		openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/certs/apache.key -out /etc/apache2/certs/apache.crt
-	
+		read -p "Ready to create the SSL certificate? (y/N) " RESULT
+		if [ "$RESULT" == "y" ]; then
+			echo "Creating SSL certificate"
+			echo ""
+			mkdir /etc/apache2/certs
+			openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/certs/apache.key -out /etc/apache2/certs/apache.crt
+		fi
+
 		echo "Creating the virtual host config file"
 		echo "(This is pretty much a copy and paste from the default and default-ssl virtual host files)"
 		echo ""
