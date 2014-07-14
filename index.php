@@ -97,10 +97,15 @@ if($db_cnx)
 		{
 			$transactions = Transactions::getAll($db_cnx);
 		}
+	} else if(!empty($_POST['submit_untagged']))
+	{
+		$transactions = Transactions::getUntagged($db_cnx);
 	} else
 	{
-		//Our default case, query the untagged stuff 
-		$transactions = Transactions::getUntagged($db_cnx);
+		//Our default case, query the last 90 days
+		$date_start = (new DateTime("90 days ago"))->format('m/d/Y');
+		$date_end = (new DateTime("tomorrow"))->format('m/d/Y');
+		$transactions = Transactions::getByDateRange($date_start, $date_end, $db_cnx);
 	}
 
 	echo '
@@ -114,7 +119,7 @@ if($db_cnx)
 			<br />
 			<input type="submit" name="submit_tags" value="Perform Query" />
 			<input type="submit" name="show_all" value="Show All Transactions" id="tags_show_all" />
-			<input type="submit" name="show_untagged" value="Show Untagged Transactions" id="tags_show_untagged" />
+			<input type="submit" name="submit_untagged" value="Show Untagged Transactions" id="tags_show_untagged" />
 			<input type="reset" value="Reset Form" id="tags_reset" />
 			
 		</fieldset>
@@ -136,7 +141,7 @@ if($db_cnx)
 	<form name="bulk_tag" method="POST">
 		<fieldset>
 			<legend>Bulk Tag</legend>
-			Tag: <input type="text" name="bulk_tags" value="" class="filter_tags tag_autocomplete" id="input_bulk_tag" /><br />
+			Tag: <input type="text" name="bulk_tags" value="" class="filter_tags" id="input_bulk_tag" /><br />
 			<br />
 			<input type="submit" name="submit_bulk_tag" value="Tag These Transactions" id="submit_bulk_tag" />
 		</fieldset>
