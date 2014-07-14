@@ -23,6 +23,7 @@ CREATE TABLE transactions (
     last_update timestamp without time zone DEFAULT now() NOT NULL,
     trantype character varying(8) NOT NULL,
     account character varying(20) NOT NULL,
+    owner integer NOT NULL,
     source character varying(20)
 );
 
