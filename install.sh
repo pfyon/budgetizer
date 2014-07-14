@@ -112,7 +112,7 @@ if [ "$RESULT" == "y" ]; then
 	else
 		echo "Enabling SSL and php5"
 		echo ""
-		a2enmod ssl php5
+		a2enmod ssl php5 rewrite
 	
 		echo "Creating SSL certificate"
 		echo ""
@@ -200,6 +200,10 @@ if [ "$RESULT" == "y" ]; then
 		cp -r class /var/www/
 		cp -r include /var/www/
 		cp index.php /var/www/
+		cp login.php /var/www/
+		cp logout.php /var/www/
+		cp budget.php /var/www/
+		cp upload.php /var/www/
 		cp style.css /var/www/
 
 		if [ -f "/var/www/index.html" ]; then
@@ -249,7 +253,6 @@ if [ "$RESULT" == "y" ]; then
 	echo "Enabling the budgetizer host"
 	echo ""
 	a2dissite default
-	a2enmod rewrite
 	a2ensite budgetizer
 	/etc/init.d/apache2 restart
 
